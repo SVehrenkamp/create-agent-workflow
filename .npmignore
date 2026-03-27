@@ -1,0 +1,6 @@
+src/
+plans/
+tsconfig.json
+.claude/
+*.tsbuildinfo
+.DS_Store
