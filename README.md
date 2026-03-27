@@ -70,6 +70,36 @@ With the framework in place, use the workflow commands:
 /pm triage                # Audit your entire backlog
 ```
 
+## How to get started
+
+Once the scaffolder has run, open your project in Claude Code and start talking:
+
+**1. Set up your product context**
+
+```
+/pm init-context
+```
+
+An adaptive interview walks you through your product vision, target users, launch criteria, and non-goals. The result lands in `docs/product-context.md` and gives every agent the context it needs.
+
+**2. Plan a feature with the PM**
+
+```
+I want to talk to the /pm about a new feature
+```
+
+Describe the idea in plain English. The PM agent will help you write a PRD, break it into phased issues, and file them to your GitHub backlog.
+
+**3. Implement an issue and ship a PR**
+
+```
+lets /implement #42 and open a /pr when finished
+```
+
+The implementer reads the issue, proposes a plan for your approval, then executes autonomously -- branch, TDD, commits, self-review, and PR creation. You stay in the loop at the approval checkpoint and can steer from there.
+
+That's the whole loop: **context → plan → build → ship**.
+
 ## Supported project types
 
 The scaffolder supports three archetypes, each generating tailored conventions:
