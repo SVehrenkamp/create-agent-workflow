@@ -1,13 +1,13 @@
 {
   "name": "@svehrenkamp/create-agent-workflow",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Scaffold an AI agent workflow framework into any project — subagents, commands, skills, and conventions for Claude Code and OpenCode",
   "type": "module",
   "bin": {
     "create-agent-workflow": "dist/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && chmod +x dist/index.js",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "prepublishOnly": "npm run build"
