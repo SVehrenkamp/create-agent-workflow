@@ -1,5 +1,5 @@
 {
-  "name": "create-agent-workflow",
+  "name": "@svehrenkamp/create-agent-workflow",
   "version": "0.1.0",
   "description": "Scaffold an AI agent workflow framework into any project — subagents, commands, skills, and conventions for Claude Code and OpenCode",
   "type": "module",

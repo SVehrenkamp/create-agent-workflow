@@ -3,7 +3,7 @@
 Scaffold a complete AI agent workflow framework into any project. One command gives you subagents, workflow commands, skills, and development conventions for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [OpenCode](https://github.com/opencode-ai/opencode).
 
 ```bash
-npx create-agent-workflow
+npx @svehrenkamp/create-agent-workflow
 ```
 
 ## What is this?
@@ -36,7 +36,7 @@ After running the scaffolder, your project will have:
 In your project directory (new or existing):
 
 ```bash
-npx create-agent-workflow
+npx @svehrenkamp/create-agent-workflow
 ```
 
 The CLI will:
