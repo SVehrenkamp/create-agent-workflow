@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { execSync } from 'child_process';
 import { detectProject } from './detect.js';
 import { conductInterview } from './interview.js';
 import { buildVariables } from './variables.js';
@@ -57,6 +58,26 @@ async function main() {
     // Generate files
     console.log('\nGenerating files...');
     await generateFiles(config, variables);
+
+    // Install community skills
+    const skills = [
+      'mattpocock/skills/write-a-prd',
+      'mattpocock/skills/prd-to-plan',
+      'mattpocock/skills/prd-to-issues',
+      'mattpocock/skills/grill-me',
+      'mattpocock/skills/tdd'
+    ];
+
+    console.log('\nInstalling skills...');
+    for (const skill of skills) {
+      const skillName = skill.split('/').pop();
+      try {
+        execSync(`npx skills@latest add ${skill}`, { stdio: 'pipe', timeout: 30000 });
+        console.log(`  ✓ ${skillName}`);
+      } catch {
+        console.log(`  ⚠ Failed to install ${skillName} (run manually: npx skills@latest add ${skill})`);
+      }
+    }
 
     // Next steps - contextual based on what's missing
     const toolsMissing = [

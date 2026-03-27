@@ -11,6 +11,9 @@ export async function generateFiles(config: ProjectConfig, variables: TemplateVa
   // Resolve templates directory relative to the built output
   const templatesDir = path.resolve(__dirname, '../templates');
 
+  // Files where we merge with existing content instead of skipping
+  const mergeableFiles = new Set(['AGENTS.md', 'AGENTS.project.md', 'CLAUDE.md']);
+
   const fileMapping = [
     { template: 'AGENTS.md', output: 'AGENTS.md' },
     { template: `agents-project/${config.archetype}.md`, output: 'AGENTS.project.md' },
@@ -40,16 +43,6 @@ export async function generateFiles(config: ProjectConfig, variables: TemplateVa
     const outputPath = path.join(config.targetDir, mapping.output);
 
     try {
-      // Check if file already exists
-      try {
-        await fs.access(outputPath);
-        console.log(`⚠ Skipped ${mapping.output} (already exists)`);
-        skippedCount++;
-        continue;
-      } catch {
-        // File doesn't exist, proceed with creation
-      }
-
       // Read template file
       let template: string;
       try {
@@ -67,7 +60,32 @@ export async function generateFiles(config: ProjectConfig, variables: TemplateVa
       const outputDir = path.dirname(outputPath);
       await fs.mkdir(outputDir, { recursive: true });
 
-      // Write file
+      // Check if file already exists
+      let existingContent: string | null = null;
+      try {
+        existingContent = await fs.readFile(outputPath, 'utf8');
+      } catch {
+        // File doesn't exist, will create fresh
+      }
+
+      if (existingContent !== null) {
+        if (mergeableFiles.has(mapping.output)) {
+          // Merge: keep existing content, append new content below a separator
+          const merged = existingContent.trimEnd()
+            + '\n\n---\n\n'
+            + '<!-- BEGIN create-agent-workflow -->\n\n'
+            + content;
+          await fs.writeFile(outputPath, merged, 'utf8');
+          console.log(`✓ Merged into existing ${mapping.output}`);
+          createdCount++;
+        } else {
+          console.log(`⚠ Skipped ${mapping.output} (already exists)`);
+          skippedCount++;
+        }
+        continue;
+      }
+
+      // Write new file
       await fs.writeFile(outputPath, content, 'utf8');
       console.log(`✓ Created ${mapping.output}`);
       createdCount++;
