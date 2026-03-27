@@ -1,11 +1,22 @@
 export type Archetype = "mobile-app" | "web-app" | "cli-library";
 
+export interface ToolDetection {
+  name: string;
+  command: string;
+  configFile: string;
+}
+
 export interface DetectionResult {
   language: string | null;
   framework: string | null;
   archetype: Archetype | null;
   packageManager: string | null;
   hasGit: boolean;
+  linter: ToolDetection | null;
+  formatter: ToolDetection | null;
+  testFramework: ToolDetection | null;
+  cicd: ToolDetection | null;
+  sourceDir: string | null;
 }
 
 export interface ProjectConfig {

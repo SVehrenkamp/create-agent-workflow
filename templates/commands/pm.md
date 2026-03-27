@@ -9,11 +9,145 @@ Execute product management tasks including PRD creation, epic breakdown, issue r
 ```
 
 **Subcommands:**
+- `init` - Two-phase project setup: configure tools, then establish product context
 - `write-prd` - Interview user and create Product Requirements Document
 - `breakdown` - Break down epic into implementation issues
 - `refine` - Audit and improve a single issue
 - `triage` - Review entire backlog for quality and organization
 - `organize` - Audit organizational structures (labels, milestones, epics)
+
+## Subcommand: init
+
+A two-phase setup command that finishes project configuration after the CLI scaffolder runs.
+
+### Phase 1: Tool Configuration
+
+#### 1. Scan for Configuration Placeholders
+- Read `AGENTS.project.md`, `CLAUDE.md`, and all generated command files
+- Scan for `# TODO: configure` placeholders — these indicate tools that weren't auto-detected during CLI setup
+- Collect all unique placeholder variables across all files
+
+#### 2. Interactive Tool Selection
+For each missing tool category (linter, formatter, test framework, backend, hosting, CI/CD), ask the user:
+- Which tool they want to use (suggest options appropriate for the project's language/framework, read from `AGENTS.project.md`)
+- What command to run it (suggest a sensible default based on the chosen tool)
+
+Example prompt:
+```
+I found the following unconfigured tools:
+
+1. Linter — # TODO: configure linter
+   Suggestions for {language}: eslint, biome, oxlint
+   Which tool? What command? (default: `npx eslint .`)
+
+2. Formatter — # TODO: configure formatter
+   Suggestions for {language}: prettier, biome
+   Which tool? What command? (default: `npx prettier --check .`)
+
+3. Test Framework — # TODO: configure test_framework
+   Suggestions for {language}: vitest, jest, mocha
+   Which tool? What command? (default: `npx vitest run`)
+```
+
+#### 3. Apply Configuration
+- Update the generated files: replace `# TODO: configure <variable>` with the chosen tool/command in ALL files that reference it (commands, CLAUDE.md, PR template, etc.)
+- Show a summary of what was configured:
+```markdown
+## Tool Configuration Summary
+
+| Category | Tool | Command | Files Updated |
+|----------|------|---------|---------------|
+| Linter | eslint | `npx eslint .` | CLAUDE.md, deploy-check.md, pr.md |
+| Formatter | prettier | `npx prettier --check .` | CLAUDE.md, deploy-check.md |
+| Test Framework | vitest | `npx vitest run` | CLAUDE.md, test.md, implement.md |
+```
+
+If no TODOs are found, skip to Phase 2 with a message: "All tools already configured. Moving to product context..."
+
+### Phase 2: Product Context Interview
+
+After tool setup, flow directly into the product context interview (the content currently in the `init-context` skill):
+
+#### 1. Read Project Context
+- Read `AGENTS.project.md` to understand archetype and stack
+- Review any existing `docs/product-context.md` if present
+
+#### 2. Conduct Adaptive Interview
+Branch questions based on the project archetype:
+
+**ALL archetypes:**
+- Vision: What is this product and what problem does it solve?
+- Target user: Who is the primary user? What are their pain points?
+- Current state: Where is the project today? (greenfield, MVP, mature)
+- Launch criteria: What must be true before v1.0 / first release?
+- Non-goals: What is explicitly out of scope?
+- Constraints: Technical, timeline, budget, regulatory limitations?
+
+**mobile-app archetype additions:**
+- App store strategy: iOS-only, Android-only, or both? When?
+- Platform scope: Native features required? (camera, GPS, push, biometrics)
+- Device targets: Phone, tablet, watch? Minimum OS versions?
+
+**web-app archetype additions:**
+- SaaS vs tool: Is this a SaaS product, internal tool, or standalone app?
+- Pricing: Free, freemium, paid? Pricing model?
+- Multi-tenancy: Single tenant or multi-tenant? Isolation requirements?
+- SEO: Is organic search a meaningful acquisition channel?
+
+**cli-library archetype additions:**
+- Distribution: npm, pip, brew, binary release, other?
+- Shell compatibility: bash, zsh, fish, PowerShell? Cross-platform?
+- Versioning: Semantic versioning? Breaking change policy?
+
+**All archetypes (continued):**
+- Competitive landscape: What alternatives exist? How is this different?
+- Key differentiators: What is the single most compelling reason to use this over alternatives?
+- Monetization: How does (or will) this make money? Is it open source?
+
+#### 3. Write Product Context
+Compile interview answers into structured output for `docs/product-context.md`:
+```markdown
+# Product Context: {project_name}
+
+## Vision
+[1-2 sentence product vision]
+
+## Target User
+[User persona, pain points, and jobs-to-be-done]
+
+## Current State
+[Where the project is today]
+
+## Launch Criteria
+[Concrete criteria for v1.0 / first release]
+
+## Non-Goals
+[Explicitly out of scope items]
+
+## Constraints
+[Technical, timeline, budget, regulatory]
+
+## Competitive Landscape
+[Alternatives and positioning]
+
+## Key Differentiators
+[What makes this unique]
+
+## Monetization
+[Business model]
+
+## Archetype-Specific Context
+[Additional context from archetype-specific questions]
+```
+
+### Checkpoint
+Before writing `docs/product-context.md`, present the full draft and get explicit user approval.
+
+### Rules
+- Never modify files without showing what will change
+- If the user wants to skip Phase 2, respect that (they can run `/pm init-context` later)
+- Use the language/framework from `AGENTS.project.md` to suggest appropriate tools in Phase 1
+- If `docs/product-context.md` already exists, warn the user and ask whether to overwrite or merge
 
 ## Subcommand: write-prd
 

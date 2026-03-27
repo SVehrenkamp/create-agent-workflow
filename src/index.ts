@@ -8,28 +8,47 @@ import { generateFiles } from './generate.js';
 async function main() {
   try {
     // Banner
-    console.log('create-agent-workflow v0.1.0');
-    console.log('Generate an AI agent workflow framework for your project\n');
-
-    const currentDir = process.cwd();
+    console.log('create-agent-workflow v0.2.0');
+    console.log();
 
     // Detect project
-    console.log('Detecting project type...');
-    const detected = await detectProject(currentDir);
+    console.log('Detecting project...');
+    const detected = await detectProject(process.cwd());
 
-    if (detected.language || detected.framework || detected.archetype) {
-      const detectedParts = [
-        detected.language,
-        detected.framework,
-        detected.archetype
-      ].filter(Boolean);
-      console.log(`Detected: ${detectedParts.join(' / ')}\n`);
+    // Print detection summary
+    console.log(`  Language:    ${detected.language || 'not detected'}`);
+    console.log(`  Framework:   ${detected.framework || 'not detected'}`);
+    console.log(`  Archetype:   ${detected.archetype || 'not detected'}`);
+
+    if (detected.linter) {
+      console.log(`  Linter:      ${detected.linter.name} (${detected.linter.configFile})`);
     } else {
-      console.log('No project type detected\n');
+      console.log('  Linter:      not detected');
     }
 
+    if (detected.formatter) {
+      console.log(`  Formatter:   ${detected.formatter.name} (${detected.formatter.configFile})`);
+    } else {
+      console.log('  Formatter:   not detected');
+    }
+
+    if (detected.testFramework) {
+      console.log(`  Tests:       ${detected.testFramework.name} (${detected.testFramework.configFile})`);
+    } else {
+      console.log('  Tests:       not detected');
+    }
+
+    if (detected.cicd) {
+      console.log(`  CI/CD:       ${detected.cicd.name} (${detected.cicd.configFile})`);
+    } else {
+      console.log('  CI/CD:       not detected');
+    }
+
+    console.log('  Backend:     not detected');
+    console.log('  Hosting:     not detected');
+    console.log();
+
     // Interview
-    console.log('Please answer a few questions about your project:\n');
     const config = await conductInterview(detected);
 
     // Build variables
@@ -39,11 +58,26 @@ async function main() {
     console.log('\nGenerating files...');
     await generateFiles(config, variables);
 
-    // Next steps
+    // Next steps - contextual based on what's missing
+    const toolsMissing = [
+      !config.linter || config.linter === '',
+      !config.formatter || config.formatter === '',
+      !config.testFramework || config.testFramework === '',
+      config.backend === 'none',
+      config.hosting === 'none',
+      !config.cicd || config.cicd === ''
+    ].some(Boolean);
+
     console.log('\nNext steps:');
-    console.log('1. Open your project in Claude Code');
-    console.log('2. Run /pm init-context to define your product context');
-    console.log('3. Start working with /implement <issue-url>');
+    console.log('  1. Open your project in Claude Code');
+
+    if (toolsMissing) {
+      console.log('  2. Run /pm init to configure missing tools and define your product context');
+    } else {
+      console.log('  2. Run /pm init to define your product context');
+    }
+
+    console.log('  3. Start working with /implement <issue-url>');
 
   } catch (error) {
     if (error instanceof Error && error.message === 'cancelled') {
