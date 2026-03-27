@@ -230,10 +230,6 @@ npm run build
 node dist/index.js  # Test locally
 ```
 
-## Origin
-
-This framework was extracted from a real-world agent workflow built for [Shallot](https://github.com/SVehrenkamp/shallot), an iOS recipe app. The patterns were developed across two PRs ([#69](https://github.com/SVehrenkamp/shallot/pull/69), [#70](https://github.com/SVehrenkamp/shallot/pull/70)) and proven effective for structured AI-assisted development before being generalized into this tool.
-
 ## License
 
 MIT
